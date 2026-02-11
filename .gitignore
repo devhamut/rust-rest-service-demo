@@ -1,1 +1,14 @@
 /target
+
+# Variables de entorno
+.env*
+
+# Backup files
+*.bak
+*~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
