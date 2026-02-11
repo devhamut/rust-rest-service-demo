@@ -12,3 +12,6 @@
 .idea/
 *.swp
 *.swo
+
+# Windows Zone Identifier files
+*:Zone.Identifier
