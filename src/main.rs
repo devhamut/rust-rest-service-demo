@@ -1,4 +1,6 @@
 mod controller;
+mod service;
+mod persistance;
 
 use controller::greetings_controller::get_greetings_router;
 use std::env;
