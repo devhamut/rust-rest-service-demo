@@ -1,6 +1,6 @@
-use std::sync::OnceLock;
+use std::sync::{OnceLock, RwLock};
 
-pub(crate) static GREETINGS_LIST: OnceLock<Vec<Greeting>> = OnceLock::new();
+pub(crate) static GREETINGS_LIST: OnceLock<RwLock<Vec<Greeting>>> = OnceLock::new();
 
 #[derive(Debug, Clone)]
 pub struct Greeting {
@@ -23,5 +23,7 @@ pub fn initialize_greetings() {
         },
     ];
 
-    GREETINGS_LIST.set(greetings).expect("Failed to initialize greetings list");
+    GREETINGS_LIST
+        .set(RwLock::new(greetings))
+        .expect("Failed to initialize greetings list");
 }

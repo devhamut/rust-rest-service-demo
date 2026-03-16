@@ -9,7 +9,8 @@ use utoipa::OpenApi;
     paths(
         get_hello,
         get_hello_world,
-        save_greetings
+        get_greetings,
+        save_greetings,
     ),
     components(
         schemas(HelloResponseJson, GreetingRequestJson)
@@ -67,6 +68,24 @@ async fn get_hello_world() -> Json<HelloResponseJson> {
 }
 
 #[utoipa::path(
+    get,
+    path = "/greetings",
+    tag = "Greetings",
+    responses(
+        (status = 200, description = "Lista de saludos", body = [GreetingRequestJson])
+    )
+)]
+async fn get_greetings() -> Json<Vec<GreetingRequestJson>> {
+    let greetings = crate::service::greetings_service::retrieve_greetings();
+    let response: Vec<GreetingRequestJson> = greetings.into_iter().map(|g| GreetingRequestJson {
+        greeting_message: g.greeting_message,
+        greeting_type: g.greeting_type,
+    }).collect();
+
+    Json(response)    
+}
+
+#[utoipa::path(
     post,
     path = "/save-greetings",
     tag = "Greetings",
@@ -76,13 +95,12 @@ async fn get_hello_world() -> Json<HelloResponseJson> {
     )
 )]
 async fn save_greetings(Json(payload): Json<GreetingRequestJson>) -> Json<HelloResponseJson> {
-    // Aquí podrías implementar la lógica para guardar el saludo en una base de datos o en memoria
-    // Por ahora, simplemente retornamos el mismo mensaje que recibimos
+    crate::service::greetings_service::save_greeting(payload.greeting_message, payload.greeting_type);
+
     Json(HelloResponseJson {
-        message: format!("Saludo guardado: {}", payload.greeting_message),
+        message: "Saludo guardado exitosamente".to_string(),
     })
 }
-
 
 /// Función que retorna el router con las rutas definidas
 pub fn get_greetings_router() -> Router {
@@ -91,6 +109,7 @@ pub fn get_greetings_router() -> Router {
     Router::new()
         .route("/", get(get_hello))
         .route("/hello-world", get(get_hello_world))
+        .route("/greetings", get(get_greetings))
         .route("/save-greetings", axum::routing::post(save_greetings))
         .merge(swagger_ui)
 }
